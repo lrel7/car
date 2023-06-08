@@ -36,7 +36,7 @@ void motor_set_speed(float speed0, float speed1);
             motor 可选MOTOR_0，MOTOR_1或者两者的组合MOTOR_0|MOTOR_1
 @retval     None
 */
-void motor_set_direction(MOTOR_DIRECTION dir, uint16_t motor);
+void motor_set_direction(MOTOR_DIRECTION dir);
 /**
 @brief      获得单个电机的转动方向
 @param      motor 可选MOTOR_0，MOTOR_1

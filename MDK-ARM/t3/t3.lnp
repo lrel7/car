@@ -4,7 +4,6 @@
 "t3\stm32f4xx_it.o"
 "t3\stm32f4xx_hal_msp.o"
 "t3\delay.o"
-"t3\led.o"
 "t3\motor.o"
 "t3\usart.o"
 "t3\stm32f4xx_hal_tim.o"

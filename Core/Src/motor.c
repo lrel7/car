@@ -5,10 +5,10 @@
 */
 
 #include "motor.h"
+#include "delay.h"
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f4xx_hal_rcc.h"
 #include "stm32f4xx_hal_tim.h"
-#include "pid.h"
 #include "main.h"
 
 #define ENCODER_PERIOD 334                                      ///<未经过减速器的电机转动一圈产生的脉冲数
@@ -44,24 +44,24 @@ void motor_set_speed(float speed0, float speed1)
 {
     if (speed0 < 0)
     {
-        motor_set_direction(MOTOR_DIRECTION_BACKWARD, MOTOR_0);
+        motor_set_direction(MOTOR_DIRECTION_BACKWARD);
         speed0 = -speed0;
     }
     else
     {
-        motor_set_direction(MOTOR_DIRECTION_FORWARD, MOTOR_0);
+        motor_set_direction(MOTOR_DIRECTION_FORWARD);
     }
     if (speed1 < 0)
     {
-        motor_set_direction(MOTOR_DIRECTION_BACKWARD, MOTOR_1);
+        motor_set_direction(MOTOR_DIRECTION_BACKWARD);
         speed1 = -speed1;
     }
     else
     {
-        motor_set_direction(MOTOR_DIRECTION_FORWARD, MOTOR_1);
+        motor_set_direction(MOTOR_DIRECTION_FORWARD);
     }
 
-    pid_set_point(SPEED_TO_CIRCLE(speed0), SPEED_TO_CIRCLE(speed1)); //PID控制接受的参数是采样周期100ms内所要达到的脉冲数，因此需要对速度进行转换
+    // pid_set_point(SPEED_TO_CIRCLE(speed0), SPEED_TO_CIRCLE(speed1)); //PID控制接受的参数是采样周期100ms内所要达到的脉冲数，因此需要对速度进行转换
 }
 /**
 @brief      设定电机的转动方向
@@ -71,7 +71,7 @@ void motor_set_speed(float speed0, float speed1)
 */
 void motor_set_direction(MOTOR_DIRECTION dir)
 {
-    uint16_t pin1 = GPIO_Pin_6, pin2 = GPIO_Pin_7, pin3 = GPIO_Pin_4, pin4 = GPIO_Pin_5;
+    uint16_t pin1 = GPIO_PIN_6, pin2 = GPIO_PIN_7, pin3 = GPIO_PIN_4, pin4 = GPIO_PIN_5;
 
     switch (dir)
     {
@@ -124,7 +124,7 @@ void motor_set_direction(MOTOR_DIRECTION dir)
 @param      motor 可选MOTOR_0，MOTOR_1
 @retval     返回电机motor的转动方向
 */
-MOTOR_DIRECTION motor_get_direction(uint16_t motor)
+/*MOTOR_DIRECTION motor_get_direction(uint16_t motor)
 {
     uint16_t pin0 = 0, pin1 = 0;
 
@@ -145,7 +145,7 @@ MOTOR_DIRECTION motor_get_direction(uint16_t motor)
         return MOTOR_DIRECTION_BACKWARD;
     else
         return MOTOR_DIRECTION_STOP;
-}
+}*/
 /**
 @brief      配置电机控制所需的时钟
 @param      None
@@ -153,14 +153,14 @@ MOTOR_DIRECTION motor_get_direction(uint16_t motor)
 */
 
 static void motor_rcc_config(void)
-{
+{/*
     // GPIO
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
     // TIM
     __HAL_RCC_TIM5_CLK_ENABLE();
     __HAL_RCC_TIM1_CLK_ENABLE();
-    __HAL_RCC_TIM8_CLK_ENABLE();
+    __HAL_RCC_TIM8_CLK_ENABLE();*/
 }
 
 
@@ -168,10 +168,11 @@ static void motor_rcc_config(void)
 @brief      配置电机控制所需的GPIO口
 @param      None
 @retval     None
-@note       
+@note    
 */
-static void motor_gpio_config(void)
-{
+
+static void motor_gpio_config(void){
+/*
     GPIO_InitTypeDef gpio_init;
     GPIO_StructInit(&gpio_init);
 
@@ -207,7 +208,7 @@ static void motor_gpio_config(void)
     HAL_GPIO_Init(GPIOC, &gpio_init); // 初始化GPIOC引脚
     // GPIO_PinAFConfig(GPIOC, GPIO_PIN_6, GPIO_AF_TIM8); // 配置引脚复用功能为TIM8
     // GPIO_PinAFConfig(GPIOC, GPIO_PIN_7, GPIO_AF_TIM8); // 配置引脚复用功能为TIM8
-
+*/
 }
 /**
 @brief      配置电机控制所需的定时器
@@ -216,8 +217,9 @@ static void motor_gpio_config(void)
 @note       
 */
 
-/*static void motor_tim_config(void)
+static void motor_tim_config(void)
 {
+/*
     TIM_TimeBaseInitTypeDef tim_base_init;
     TIM_OCInitTypeDef tim_oc_init;
     TIM_ICInitTypeDef tim_ic_init;
@@ -268,9 +270,10 @@ static void motor_gpio_config(void)
     TIM_ITConfig(TIM1, TIM_IT_Update | TIM_IT_CC3, ENABLE);
     TIM_ClearFlag(TIM8, TIM_FLAG_Update);
     TIM_ITConfig(TIM8, TIM_IT_Update, ENABLE);
-}*/
+*/
+}
 
-static void motor_tim_config(void)
+/*static void motor_tim_config(void)
 {
     TIM_HandleTypeDef tim_handle;
     TIM_OC_InitTypeDef tim_oc_init;
@@ -322,7 +325,7 @@ static void motor_tim_config(void)
 
     __HAL_TIM_CLEAR_FLAG(&tim_handle, TIM_FLAG_UPDATE | TIM_FLAG_CC3);
     HAL_TIM_Base_Start_IT(&tim_handle);
-}
+}*/
 
 
 /**
@@ -354,7 +357,7 @@ static void motor_nvic_config(void)
 
 static void motor_nvic_config(void)
 {
-    NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+    /*NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
     HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
@@ -362,5 +365,5 @@ static void motor_nvic_config(void)
     HAL_NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
 
     HAL_NVIC_SetPriority(TIM1_CC_IRQn, 1, 1);
-    HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);
+    HAL_NVIC_EnableIRQ(TIM1_CC_IRQn);*/
 }
