@@ -7,6 +7,8 @@ int main() {
     motor_config();
     
     while(1) {
-      motor_set_direction(MOTOR_DIRECTION_FORWARD);
+			HAL_Delay(500);	//??500ms+
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);	//??PC13??
+			motor_set_speed(1.0, 1.0);
     }
 }

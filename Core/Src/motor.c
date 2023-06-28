@@ -30,8 +30,8 @@ void motor_config(void)
 {
     motor_rcc_config();
     motor_gpio_config();
-    motor_tim_config();
-    motor_nvic_config();
+    // motor_tim_config();
+    // motor_nvic_config();
 }
 /**
 @brief      设定左右电机的速度
@@ -172,16 +172,16 @@ static void motor_rcc_config(void)
 */
 
 static void motor_gpio_config(void){
-/*
+
     GPIO_InitTypeDef gpio_init;
-    GPIO_StructInit(&gpio_init);
+    // HAL_GPIO_Init(&gpio_init);
 
     //PA0--MSP1;PA1--MSP2
     gpio_init.Mode = GPIO_MODE_AF_PP;
-    gpio_init.OutputType = GPIO_OUTPUT_TYPE_PP;
-    gpio_init.Pin = GPIO_Pin_0 | GPIO_Pin_1; //PA0和PA1
+    // gpio_init.OutputType = GPIO_OUTPUT_TYPE_PP;
+    gpio_init.Pin = GPIO_PIN_0 | GPIO_PIN_1; //PA0和PA1
     gpio_init.Speed = GPIO_SPEED_FREQ_HIGH; 
-    gpio_init.Alternate = GPIO_AF_TIM5; // 设置复用功能为TIM5
+    // gpio_init.Alternate = GPIO_AF_TIM5; // 设置复用功能为TIM5
     HAL_GPIO_Init(GPIOA, &gpio_init);
     // GPIO_PinAFConfig(GPIOA, GPIO_PinSource0, GPIO_AF_TIM5); //必须开启复用功能
     // GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_TIM5);
@@ -196,19 +196,28 @@ static void motor_gpio_config(void){
     gpio_init.Pin = GPIO_PIN_8 | GPIO_PIN_9; // PA8, PA9
     gpio_init.Mode = GPIO_MODE_AF_PP; // 设置为复用功能推挽输出模式
     gpio_init.Pull = GPIO_NOPULL; // 不使用上下拉电阻
-    gpio_init.Alternate = GPIO_AF_TIM1; // 设置复用功能为TIM1
+    // gpio_init.Alternate = GPIO_AF_TIM1; // 设置复用功能为TIM1
     HAL_GPIO_Init(GPIOA, &gpio_init); // 初始化GPIOA引脚
     // GPIO_PinAFConfig(GPIOA, GPIO_PIN_8, GPIO_AF_TIM1); // 配置引脚复用功能为TIM1
     // GPIO_PinAFConfig(GPIOA, GPIO_PIN_9, GPIO_AF_TIM1); // 配置引脚复用功能为TIM1
+		
 
+    gpio_init.Pin = GPIO_PIN_13; // PC6, PC7
+    gpio_init.Mode = GPIO_MODE_AF_PP; // 设置为复用功能推挽输出模式
+    gpio_init.Pull = GPIO_NOPULL; // 不使用上下拉电阻
+		gpio_init.Speed = GPIO_SPEED_FREQ_HIGH;
+    // gpio_init.Alternate = GPIO_AF_TIM8; // 设置复用功能为TIM8
+    HAL_GPIO_Init(GPIOC, &gpio_init); // 初始化GPIOC引脚
+		
+		
     gpio_init.Pin = GPIO_PIN_6 | GPIO_PIN_7; // PC6, PC7
     gpio_init.Mode = GPIO_MODE_AF_PP; // 设置为复用功能推挽输出模式
     gpio_init.Pull = GPIO_NOPULL; // 不使用上下拉电阻
-    gpio_init.Alternate = GPIO_AF_TIM8; // 设置复用功能为TIM8
+    // gpio_init.Alternate = GPIO_AF_TIM8; // 设置复用功能为TIM8
     HAL_GPIO_Init(GPIOC, &gpio_init); // 初始化GPIOC引脚
     // GPIO_PinAFConfig(GPIOC, GPIO_PIN_6, GPIO_AF_TIM8); // 配置引脚复用功能为TIM8
     // GPIO_PinAFConfig(GPIOC, GPIO_PIN_7, GPIO_AF_TIM8); // 配置引脚复用功能为TIM8
-*/
+
 }
 /**
 @brief      配置电机控制所需的定时器
@@ -217,9 +226,9 @@ static void motor_gpio_config(void){
 @note       
 */
 
-static void motor_tim_config(void)
+/*static void motor_tim_config(void)
 {
-/*
+
     TIM_TimeBaseInitTypeDef tim_base_init;
     TIM_OCInitTypeDef tim_oc_init;
     TIM_ICInitTypeDef tim_ic_init;
@@ -270,11 +279,12 @@ static void motor_tim_config(void)
     TIM_ITConfig(TIM1, TIM_IT_Update | TIM_IT_CC3, ENABLE);
     TIM_ClearFlag(TIM8, TIM_FLAG_Update);
     TIM_ITConfig(TIM8, TIM_IT_Update, ENABLE);
-*/
-}
 
-/*static void motor_tim_config(void)
-{
+}
+*/
+
+static void motor_tim_config(void)
+{/*
     TIM_HandleTypeDef tim_handle;
     TIM_OC_InitTypeDef tim_oc_init;
     TIM_Encoder_InitTypeDef tim_encoder_init;
@@ -324,8 +334,8 @@ static void motor_tim_config(void)
     HAL_TIM_Encoder_MspInit(&tim_handle);
 
     __HAL_TIM_CLEAR_FLAG(&tim_handle, TIM_FLAG_UPDATE | TIM_FLAG_CC3);
-    HAL_TIM_Base_Start_IT(&tim_handle);
-}*/
+    HAL_TIM_Base_Start_IT(&tim_handle);*/
+}
 
 
 /**
@@ -356,8 +366,8 @@ static void motor_nvic_config(void)
 }*/
 
 static void motor_nvic_config(void)
-{
-    /*NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+{/*
+    NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
 
     HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
