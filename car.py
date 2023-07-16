@@ -32,6 +32,7 @@ init_duty = 50
 #输出模式
 # GPIO.setup(TRIG,GPIO.OUT)
 # GPIO.setup(ECHO,GPIO.IN)
+GPIO.setup(SONAR,GPIO.OUT) # 初始化为输出口
 GPIO.setup(INT1a,GPIO.OUT)
 GPIO.setup(INT2a,GPIO.OUT)
 GPIO.setup(INT3a,GPIO.OUT)
@@ -93,65 +94,52 @@ def SetMotorSpeed(motor, speed): # speed 从 0 到 50
         pwm3.ChangeDutyCycle(speed)
     pass
 
-def Forward():
+def Forward(speed):
     SetMotorDir(0, 1)
     SetMotorDir(1, 1)
     SetMotorDir(2, 1)
     SetMotorDir(3, 1)
-    SetMotorSpeed(0,  5)
-    SetMotorSpeed(1, 20)
+    SetMotorSpeed(0, speed)
+    SetMotorSpeed(1, speed)
 
-#后退指定时间函数
-def Back_time(time_sleep):
-    GPIO.output(INT1a,GPIO.HIGH)
-    GPIO.output(INT2a,GPIO.LOW)
-    GPIO.output(INT3a,GPIO.LOW)
-    GPIO.output(INT4a,GPIO.HIGH)
-    GPIO.output(INT1b,GPIO.HIGH)
-    GPIO.output(INT2b,GPIO.LOW)
-    GPIO.output(INT3b,GPIO.LOW)
-    GPIO.output(INT4b,GPIO.HIGH)
-    time.sleep(time_sleep)
+def Back(time, speed):
+    SetMotorDir(0, 0)
+    SetMotorDir(1, 0)
+    SetMotorDir(2, 0)
+    SetMotorDir(3, 0)
+    SetMotorSpeed(0, speed)
+    SetMotorSpeed(1, speed)
+    time.sleep(time)
 
-#左转指定时间函数
-def Left_time(time_sleep):
-    GPIO.output(INT1a,GPIO.LOW)
-    GPIO.output(INT2a,GPIO.LOW)
-    GPIO.output(INT3a,GPIO.LOW)
-    GPIO.output(INT4a,GPIO.HIGH)
-    GPIO.output(INT1b,GPIO.LOW)
-    GPIO.output(INT2b,GPIO.LOW)
-    GPIO.output(INT3b,GPIO.LOW)
-    GPIO.output(INT4b,GPIO.HIGH)
-    time.sleep(time_sleep)
+def Left(time, speed):
+    SetMotorDir(0, 1)
+    SetMotorDir(1, 0)
+    SetMotorDir(2, 1)
+    SetMotorDir(3, 0)
+    SetMotorSpeed(0, speed)
+    SetMotorSpeed(1, speed)
+    time.sleep(time)
 
-#停止函数
 def Stop():
-    GPIO.output(INT1a,GPIO.LOW)
-    GPIO.output(INT2a,GPIO.LOW)
-    GPIO.output(INT3a,GPIO.LOW)
-    GPIO.output(INT4a,GPIO.LOW)
-    GPIO.output(INT1b,GPIO.LOW)
-    GPIO.output(INT2b,GPIO.LOW)
-    GPIO.output(INT3b,GPIO.LOW)
-    GPIO.output(INT4b,GPIO.LOW)
+    SetMotorDir(0, 2)
+    SetMotorDir(1, 2)
+    SetMotorDir(2, 2)
+    SetMotorDir(3, 2)
 
 #超声波测距函数
 def Distance_Ultrasound():
 
-    # GPIO.output(TRIG,GPIO.LOW)		#输出口初始化置LOW（不发射）
-    GPIO.setup(SONAR,GPIO.OUT)
+    GPIO.output(SONAR, GPIO.LOW) # 初始化为LOW
     time.sleep(0.000002)
-    # GPIO.output(TRIG,GPIO.HIGH)		#发射超声波
-    GPIO.output(SONAR, GPIO.HIGH)
+    GPIO.output(SONAR, GPIO.HIGH) # 发射超声波
     time.sleep(0.00001)
-    # GPIO.output(TRIG,GPIO.LOW)		#停止发射超声波
-    GPIO.output(SONAR, GPIO.LOW)
-    GPIO.setup(SONAR,GPIO.IN)
+    GPIO.output(SONAR, GPIO.LOW) # 停止发射超声波
+    GPIO.setup(SONAR, GPIO.IN) # 设置为输入模式以读取信息
     while GPIO.input(SONAR) == 0:
         emitTime = time.time()		#记录发射时间
     while GPIO.input(SONAR) == 1:
         acceptTime = time.time()	#记录接收时间
+    GPIO.setup(SONAR, GPIO.OUT) # 设置回输出模式
     totalTime = acceptTime - emitTime		#计算总时间
     distanceReturn = totalTime * 340 / 2 * 100  	#计算距离（单位：cm）
     return  distanceReturn			#返回距离
@@ -161,8 +149,8 @@ def Obstacle_Avoidance():
     dis = Distance_Ultrasound()
     print("距离", dis, "cm")
     while dis<30:
-        Back_time(0.5)
-        Left_time(1.5)
+        Back(0.5)
+        Left(1.5)
         Forward()
         dis = Distance_Ultrasound() # 重新获取距离
         print("距离", dis, "cm")
@@ -194,3 +182,4 @@ while True:
     pass
     # Left_time(0)
     Obstacle_Avoidance()
+    time.sleep(0.01)
