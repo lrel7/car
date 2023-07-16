@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "*.pyx": "cython",
-        "stm32f4xx_hal.h": "c",
-        "stm32f4xx_hal_gpio.h": "c"
-    }
-}
