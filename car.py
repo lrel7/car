@@ -1,30 +1,29 @@
 import RPi.GPIO as GPIO		#引入RPi.GPIO库函数命名为GPIO
 import time					#引入计时time函数
 
-#GPIO.setwarnings(False)
-
+GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)     	#将GPIO编程方式设置为BCM模式，基于插座引脚编号
 
 #接口定义
 # TRIG = 5					#将超声波模块TRIG口连接到树莓派Pin29
 # ECHO = 6                    #将超声波模块ECHO口连接到树莓派Pin31
 SONAR = 13
-INT1a = 22                   
-INT2a = 24                   
-INT3a = 26                   
-INT4a = 32                   
-INT1b = 29                   
-INT2b = 23                   
-INT3b = 21                   
-INT4b = 19                   
+INT1b = 22                   
+INT2b = 24                   
+INT3b = 26                   
+INT4b = 32                   
+INT1a = 29                   
+INT2a = 23                   
+INT3a = 21                   
+INT4a = 15                   
 EA1 = 3 # 前轮ENA
 EB1 = 5 # 前轮EAB
 EA2 = 37 # 后轮ENA
 EB2 = 38 # 后轮ENB
 
 freq = 100
-init_duty = 50
-speed_default = 5
+init_duty = 15 
+speed_default = 15 
 
 
 # 将前侧左右轮、后侧左右轮分别命名为0123轮，四个使能按顺序为EB1\EA1\EA2\EB2
@@ -47,8 +46,8 @@ GPIO.setup(EB1,GPIO.OUT)
 GPIO.setup(EA2,GPIO.OUT)
 GPIO.setup(EB2,GPIO.OUT)
 
-pwm0 = GPIO.PWM(EB1, freq)
-pwm1 = GPIO.PWM(EA1, freq)
+pwm0 = GPIO.PWM(EA1, freq)
+pwm1 = GPIO.PWM(EB1, freq)
 pwm2 = GPIO.PWM(EA2, freq)
 pwm3 = GPIO.PWM(EB2, freq)
 pwm0.start(init_duty)
@@ -63,26 +62,26 @@ def SetMotorDir(motor, dir): # 输入电机编号和转动方向 (1 正 0 负 2 
             GPIO.output(INT3a,GPIO.LOW)
             GPIO.output(INT4a,GPIO.LOW)
         if motor == 1 :
-            GPIO.output(INT2a,GPIO.LOW)
             GPIO.output(INT1a,GPIO.LOW)
+            GPIO.output(INT2a,GPIO.LOW)
+        if motor == 2 :
+            GPIO.output(INT1b,GPIO.LOW)
+            GPIO.output(INT2b,GPIO.LOW)
         if motor == 3 :
             GPIO.output(INT3b,GPIO.LOW)
             GPIO.output(INT4b,GPIO.LOW)
-        if motor == 2 :
-            GPIO.output(INT2b,GPIO.LOW)
-            GPIO.output(INT1b,GPIO.LOW)
     if motor == 0 :
         GPIO.output(INT3a,GPIO.LOW if dir else GPIO.HIGH) 
         GPIO.output(INT4a,GPIO.HIGH if dir else GPIO.LOW)
     if motor == 1 :
         GPIO.output(INT2a,GPIO.LOW if dir else GPIO.HIGH) 
         GPIO.output(INT1a,GPIO.HIGH if dir else GPIO.LOW)
-    if motor == 3 :
-        GPIO.output(INT4b,GPIO.LOW if dir else GPIO.HIGH) 
-        GPIO.output(INT3b,GPIO.HIGH if dir else GPIO.LOW)
     if motor == 2 :
         GPIO.output(INT1b,GPIO.LOW if dir else GPIO.HIGH) 
         GPIO.output(INT2b,GPIO.HIGH if dir else GPIO.LOW)
+    if motor == 3 :
+        GPIO.output(INT4b,GPIO.LOW if dir else GPIO.HIGH) 
+        GPIO.output(INT3b,GPIO.HIGH if dir else GPIO.LOW)
    
 def SetMotorSpeed(motor, speed): # speed 从 0 到 50
     if motor == 0 : 
@@ -127,10 +126,10 @@ def Left(time_sleep, speed=None):
     SetMotorSpeed(1, speed)
     SetMotorSpeed(2, speed)
     SetMotorSpeed(3, speed)
-    SetMotorDir(0, 1)
-    SetMotorDir(1, 0)
-    SetMotorDir(2, 1)
-    SetMotorDir(3, 0)
+    SetMotorDir(0, 0)
+    SetMotorDir(1, 1)
+    SetMotorDir(2, 0)
+    SetMotorDir(3, 1)
     time.sleep(time_sleep)
 
 def Stop(time_sleep):
@@ -161,7 +160,7 @@ def Distance_Ultrasound():
 def Obstacle_Avoidance():
     dis = Distance_Ultrasound()
     print("距离", dis, "cm")
-    while dis<30:
+    while dis<50:
         Back(1.0)
         Stop(0.2)
         Left(1.0)
@@ -170,17 +169,6 @@ def Obstacle_Avoidance():
         print("距离", dis, "cm")
         time.sleep(0.01)
     Forward()
-
-
-	# dis = Distance_Ultrasound()
-	# print("距离 ",dis,"cm")
-    #     while dis<30:
-    #         Back_time(0.5)		#距离小于30cm时后退0.5s
-    #         dis=Distance_Ultrasound()
-    #         print("距离 ",dis,"cm")
-    #     Left_time(1.5)			#左转1.5s
-    #     forward()				#继续前进
-    # time.sleep(0.5)
 
 def clean_up():
     GPIO.output(SONAR, GPIO.LOW)
@@ -199,20 +187,20 @@ def clean_up():
 
 clean_up()
 print("超声波避障系统运行中，按Ctrl+C退出...")
-# try:
-    # Forward()				#初始状态为前进
-    # Obstacle_Avoidance()
-# except KeyboardInterrupt:
-    # Stop()
-# GPIO.output(EA1,GPIO.HIGH)
-# GPIO.output(EB1,GPIO.HIGH)
-# GPIO.output(EA2,GPIO.HIGH)
-# GPIO.output(EB2,GPIO.HIGH)
-time.sleep(5)
+GPIO.output(EA1,GPIO.HIGH)
+GPIO.output(EB1,GPIO.HIGH)
+GPIO.output(EA2,GPIO.HIGH)
+GPIO.output(EB2,GPIO.HIGH)
+time.sleep(10)
 while True:
-    # Obstacle_Avoidance()
-    # time.sleep(0.01)
-    Forward()
-    time.sleep(10)
-    Back(10)
-    Left(10)
+    Obstacle_Avoidance()
+    time.sleep(0.01)
+    # print("Begin Forward")
+    # Forward()
+    # time.sleep(5)
+    # print("Begin Back")
+    # Back(5)
+    # print("Begin Left")
+    # Left(5)
+    # GPIO.output(INT3a, GPIO.LOW)
+    # GPIO.output(INT4a, GPIO.HIGH)
