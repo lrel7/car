@@ -24,6 +24,7 @@ EB2 = 38 # 后轮ENB
 
 freq = 50
 init_duty = 50
+speed_default = 5
 
 
 # 将前侧左右轮、后侧左右轮分别命名为0123轮，四个使能按顺序为EB1\EA1\EA2\EB2
@@ -95,6 +96,8 @@ def SetMotorSpeed(motor, speed): # speed 从 0 到 50
     pass
 
 def Forward(speed):
+    if speed is None:
+        speed = speed_default
     SetMotorDir(0, 1)
     SetMotorDir(1, 1)
     SetMotorDir(2, 1)
@@ -103,6 +106,8 @@ def Forward(speed):
     SetMotorSpeed(1, speed)
 
 def Back(time, speed):
+    if speed is None:
+        speed = speed_default
     SetMotorDir(0, 0)
     SetMotorDir(1, 0)
     SetMotorDir(2, 0)
@@ -112,6 +117,8 @@ def Back(time, speed):
     time.sleep(time)
 
 def Left(time, speed):
+    if speed is None:
+        speed = speed_default
     SetMotorDir(0, 1)
     SetMotorDir(1, 0)
     SetMotorDir(2, 1)
@@ -128,7 +135,6 @@ def Stop():
 
 #超声波测距函数
 def Distance_Ultrasound():
-
     GPIO.output(SONAR, GPIO.LOW) # 初始化为LOW
     time.sleep(0.000002)
     GPIO.output(SONAR, GPIO.HIGH) # 发射超声波
