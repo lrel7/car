@@ -139,11 +139,7 @@ def Back(time_sleep, speed=None):
 
 def Left(time_sleep, speed=None):
     if speed is None:
-<<<<<<< HEAD
         speed = CIRCLE_SPEED
-=======
-        speed = speed_default
->>>>>>> 0a8cdada13ef3bfbfe4104cbf298f1989fc947dc
     SetMotorSpeed(0, speed)
     SetMotorSpeed(1, speed)
     SetMotorSpeed(2, speed)
