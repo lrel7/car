@@ -23,7 +23,7 @@ EB2 = 38 # 后轮ENB
 
 freq = 100
 init_duty = 15 
-speed_default = 15 
+speed_default = 20
 OBSTACLE_DISTANCE = 30
 MAX_ERROR_COUNT = 3
 BACK_TIME = 1.0
@@ -32,7 +32,7 @@ STOP_TIME = 0.2
 BACK_TIME_LONG = 3.0
 CIRCLE_COUNT = 10
 CIRCLE_TIME = 0.2 
-CIRCLE_SPEED = 20
+CIRCLE_SPEED = 25
 MAX_CONTINUOUS_OBSTACLE_TIME = 10.0
 MAX_CONTINUOUS_OBSTACLE_COUNT = 3
 continuous_obstacle_count = 0
@@ -257,16 +257,11 @@ GPIO.output(EA2,GPIO.HIGH)
 GPIO.output(EB2,GPIO.HIGH)
 time.sleep(5)
 start_time = time.time() # 获取当前时间
-while True:
-    Obstacle_Avoidance()
-    continuous_obstacle_timer()
-    time.sleep(0.01)
-    # print("Begin Forward")
-    # Forward()
-    # time.sleep(5)
-    # print("Begin Back")
-    # Back(5)
-    # print("Begin Left")
-    # Left(5)
-    # GPIO.output(INT3a, GPIO.LOW)
-    # GPIO.output(INT4a, GPIO.HIGH)
+try:
+    while True:
+        Obstacle_Avoidance()
+        continuous_obstacle_timer()
+        time.sleep(0.01)
+
+except KeyboardInterrupt:
+    GPIO.cleanup()
