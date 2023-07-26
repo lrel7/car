@@ -23,7 +23,7 @@ EB2 = 38 # 后轮ENB
 
 freq = 100
 init_duty = 15 
-speed_default = 20
+speed_default = 15 
 OBSTACLE_DISTANCE = 30
 MAX_ERROR_COUNT = 3
 BACK_TIME = 1.0
@@ -32,12 +32,16 @@ STOP_TIME = 0.2
 BACK_TIME_LONG = 3.0
 CIRCLE_COUNT = 10
 CIRCLE_TIME = 0.2 
-CIRCLE_SPEED = 25
+CIRCLE_SPEED = 20  # 转向时的速度
 MAX_CONTINUOUS_OBSTACLE_TIME = 10.0
 MAX_CONTINUOUS_OBSTACLE_COUNT = 3
 continuous_obstacle_count = 0
-start_time = 0.0
-now_time = 0.0
+start_time_obstacle = 0.0
+MIN_FORWARD_TIME = 0.2
+forward_time = 0.0 # 已经持续前进的时间
+deflection = 0.0 # 总的向左偏转时间
+flag = 0 # 此轮循环是否有避障操作？
+start_time_forward = 0.0
 
 
 # 将前侧左右轮、后侧左右轮分别命名为0123轮，四个使能按顺序为EB1\EA1\EA2\EB2
@@ -135,7 +139,7 @@ def Back(time_sleep, speed=None):
 
 def Left(time_sleep, speed=None):
     if speed is None:
-        speed = speed_default
+        speed = CIRCLE_SPEED
     SetMotorSpeed(0, speed)
     SetMotorSpeed(1, speed)
     SetMotorSpeed(2, speed)
@@ -145,10 +149,13 @@ def Left(time_sleep, speed=None):
     SetMotorDir(2, 0)
     SetMotorDir(3, 1)
     time.sleep(time_sleep)
+    global deflection
+    deflection += time_sleep # 更新deflection
+   
 
 def Right(time_sleep, speed=None):
     if speed is None:
-        speed = speed_default
+        speed = CIRCLE_SPEED
     SetMotorSpeed(0, speed)
     SetMotorSpeed(1, speed)
     SetMotorSpeed(2, speed)
@@ -158,6 +165,8 @@ def Right(time_sleep, speed=None):
     SetMotorDir(2, 1)
     SetMotorDir(3, 0)
     time.sleep(time_sleep)
+    global deflection
+    deflection -= time_sleep # 更新deflection
 
 def Stop(time_sleep):
     SetMotorDir(0, 2)
@@ -186,6 +195,7 @@ def Distance_Ultrasound():
     return distanceReturn			#返回距离
 
 def decide_direction():
+    global deflection
     print("重新选择方向中……")
     dis = 0.0
     max_dis = 0.0
@@ -199,13 +209,15 @@ def decide_direction():
     for i in range(CIRCLE_COUNT - count):
         Right(CIRCLE_TIME, CIRCLE_SPEED)
 
-#避障函数
+# 避障函数
 def Obstacle_Avoidance():
     global continuous_obstacle_count
+    global flag
     dis = Distance_Ultrasound()
     count = 0
     print("距离", dis, "cm")
     while dis < OBSTACLE_DISTANCE:
+        flag = 1
         print("避障！")
         Back(BACK_TIME)
         Stop(STOP_TIME)
@@ -225,14 +237,41 @@ def Obstacle_Avoidance():
         time.sleep(0.01)
     Forward()
 
-def continuous_obstacle_timer():
-    global start_time
-    now_time = time.time()    
-    passed_time = now_time - start_time
+def my_timer():
+    global continuous_obstacle_count
+    global start_time_obstacle
+    global start_time_forward
+    global forward_time
+    global flag
+    passed_time_obstacle = time.time() - start_time_obstacle
+    passed_time_forward = time.time() - start_time_forward
     # 每10s清零一次count
-    if passed_time > MAX_CONTINUOUS_OBSTACLE_TIME:
+    if passed_time_obstacle > MAX_CONTINUOUS_OBSTACLE_TIME:
         continuous_obstacle_count = 0
-        start_time = time.time()
+        start_time_obstacle = time.time()
+    # 本轮未避障
+    if flag == 0:
+        forward_time = time.time() - start_time_forward 
+    else:
+        forward_time = 0
+        start_time_forward = time.time()
+    
+
+def correct_direction():
+    global forward_time
+    global deflection
+    # 已经持续前进了1s
+    if forward_time > MIN_FORWARD_TIME:
+        print("回归初始方向中……")
+        if deflection > 0: # 向左偏转了，应当向右转回来
+            Right(deflection)
+        elif deflection < 0: # 向右偏转了，应当向左转回来
+            Left(-deflection)
+        else:
+            print("现在就在初始方向上")
+    Forward()
+            
+        
 
 def clean_up():
     GPIO.output(SONAR, GPIO.LOW)
@@ -256,11 +295,14 @@ GPIO.output(EB1,GPIO.HIGH)
 GPIO.output(EA2,GPIO.HIGH)
 GPIO.output(EB2,GPIO.HIGH)
 time.sleep(5)
-start_time = time.time() # 获取当前时间
+start_time_obstacle = time.time() # 获取当前时间
+start_time_forward = time.time()
 try:
     while True:
+        flag = 0
         Obstacle_Avoidance()
-        continuous_obstacle_timer()
+        my_timer()
+        correct_direction()
         time.sleep(0.01)
 
 except KeyboardInterrupt:
