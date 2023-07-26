@@ -21,27 +21,26 @@ EB1 = 5 # 前轮EAB
 EA2 = 37 # 后轮ENA
 EB2 = 38 # 后轮ENB
 
-freq = 100
-init_duty = 15 
-speed_default = 15 
-OBSTACLE_DISTANCE = 30
-MAX_ERROR_COUNT = 3
-BACK_TIME = 1.0
-LEFT_TIME = 1.0
-STOP_TIME = 0.2
-BACK_TIME_LONG = 3.0
-CIRCLE_COUNT = 10
-CIRCLE_TIME = 0.2 
-CIRCLE_SPEED = 20  # 转向时的速度
-MAX_CONTINUOUS_OBSTACLE_TIME = 10.0
-MAX_CONTINUOUS_OBSTACLE_COUNT = 3
-continuous_obstacle_count = 0
-start_time_obstacle = 0.0
-MIN_FORWARD_TIME = 0.2
+freq = 100 # 默认频率
+init_duty = 15
+speed_default = 15 # 默认速度
+OBSTACLE_DISTANCE = 30 # 避障距离
+BACK_TIME = 1.0 # 避障时的后退时间
+LEFT_TIME = 1.0 # 避障时的左转时间
+STOP_TIME = 0.2 # 避障时的后退时间
+BACK_TIME_LONG = 3.0 # 重新选择方向之前的后退时间
+CIRCLE_COUNT = 10 # 重新选择方向时的测距次数（即考虑的方向个数）
+CIRCLE_TIME = 0.2 # 重新选择方向时的单次转向时间
+CIRCLE_SPEED = 20  # 转向速度
+MAX_CONTINUOUS_OBSTACLE_TIME = 10.0 # 统计避障次数的时间
+MAX_CONTINUOUS_OBSTACLE_COUNT = 3 # 10s内可以容忍的最大避障次数
+continuous_obstacle_count = 0 # 10s内的避障次数
+start_time_obstacle = 0.0 # 用于避障的计时
+MIN_FORWARD_TIME = 0.2 # 持续前进多少时间开始回归原有轨迹
 forward_time = 0.0 # 已经持续前进的时间
 deflection = 0.0 # 总的向左偏转时间
 flag = 0 # 此轮循环是否有避障操作？
-start_time_forward = 0.0
+start_time_forward = 0.0 # 用于前进的计时
 
 
 # 将前侧左右轮、后侧左右轮分别命名为0123轮，四个使能按顺序为EB1\EA1\EA2\EB2
